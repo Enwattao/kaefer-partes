@@ -6,7 +6,7 @@ const NAV = [
   { id: 'ajustes', icon: '⚙️', label: 'Ajustes', desc: 'Actualización y datos' },
 ]
 
-export default function Sidebar({ pantalla, setPantalla, totales }) {
+export default function Sidebar({ pantalla, setPantalla }) {
   return (
     <div style={{
       width: 'var(--sidebar)',
@@ -57,11 +57,6 @@ export default function Sidebar({ pantalla, setPantalla, totales }) {
               <div style={{ fontSize: 13.5, fontWeight: active ? 700 : 500 }}>{item.label}</div>
               <div style={{ fontSize: 10.5, opacity: active ? .8 : .5 }}>{item.desc}</div>
             </div>
-            {item.id === 'consultas' && totales > 0 && (
-              <span className="badge" style={{ background: active ? 'rgba(255,255,255,.28)' : 'var(--red)', color: '#fff' }}>
-                {totales}
-              </span>
-            )}
           </button>
         )
       })}

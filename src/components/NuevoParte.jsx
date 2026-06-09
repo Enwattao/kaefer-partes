@@ -145,15 +145,19 @@ export default function NuevoParte({ onGuardado }) {
                 ))}
               </tbody>
             </table>
+
+            {/* Botón debajo de la última fila, baja con la lista */}
+            <div style={{ padding: '14px 16px' }}>
+              <button className="btn btn-primary btn-lg" onClick={addFila} disabled={filas.length >= FILAS_MAX} style={{ width: '100%' }}>
+                + Añadir operario
+              </button>
+            </div>
           </div>
 
-          <div style={{ padding: '12px 16px', borderTop: '1px solid var(--border)', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+          <div style={{ padding: '12px 16px', borderTop: '1px solid var(--border)' }}>
             <span style={{ color: 'var(--text3)', fontSize: 12.5 }}>
               {nValidos} operario{nValidos !== 1 ? 's' : ''} con nombre
             </span>
-            <button className="btn btn-primary btn-sm" onClick={addFila} disabled={filas.length >= FILAS_MAX}>
-              + Añadir fila
-            </button>
           </div>
         </div>
       </div>
