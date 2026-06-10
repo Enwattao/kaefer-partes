@@ -19,6 +19,15 @@ export async function saveMontajes(data) {
   localStorage.setItem('montajes', JSON.stringify(data))
 }
 
+export async function getSitios() {
+  if (isElectron) return window.api.getSitios()
+  return JSON.parse(localStorage.getItem('sitios') || '[]')
+}
+export async function saveSitios(data) {
+  if (isElectron) return window.api.saveSitios(data)
+  localStorage.setItem('sitios', JSON.stringify(data))
+}
+
 export async function getPartes() {
   if (isElectron) return window.api.getPartes()
   return JSON.parse(localStorage.getItem('partes') || '[]')

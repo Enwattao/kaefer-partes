@@ -1,27 +1,44 @@
 import { useState, useEffect, useMemo } from 'react'
-import { getOperarios, getMontajes, getPartes, savePartes, genId, hoy } from '../lib/db.js'
+import { getOperarios, getMontajes, getSitios, getPartes, savePartes, genId, hoy } from '../lib/db.js'
 import { generarParte } from '../lib/pdf.js'
 import Autocomplete from './Autocomplete.jsx'
 import Banner from './Banner.jsx'
 
 const FILAS_MAX = 16
 
-export default function NuevoParte({ onGuardado }) {
+export default function NuevoParte({ parteEditar = null, onTerminado }) {
+  const editando = !!parteEditar
   const [operarios, setOperarios] = useState([])
   const [montajes, setMontajes] = useState([])
+  const [sitios, setSitios] = useState([])
   const [partes, setPartes] = useState([])
-  const [fecha, setFecha] = useState(hoy())
-  const [filas, setFilas] = useState([nuevaFila()])
+  const [fecha, setFecha] = useState(parteEditar?.fecha || hoy())
+  const [sitio, setSitio] = useState(parteEditar?.sitio || '')
+  const [filas, setFilas] = useState(() => editando
+    ? parteEditar.filas.map(f => ({
+        id: genId(),
+        operario: f.operario || '',
+        montajeNombre: f.montajeNombre || f.montaje || '',
+        montajeNumero: f.montajeNumero || '',
+      }))
+    : [nuevaFila()])
   const [guardando, setGuardando] = useState(false)
   const [exito, setExito] = useState(false)
 
   useEffect(() => {
     getOperarios().then(setOperarios)
     getMontajes().then(setMontajes)
+    getSitios().then(setSitios)
     getPartes().then(setPartes)
   }, [])
 
   const opsNombres = operarios.map(o => o.nombre)
+  const sitiosNombres = useMemo(() => sitios.map(s => s.nombre), [sitios])
+  const usadosSitio = useMemo(() => {
+    const c = {}
+    partes.forEach(p => { if (p.sitio) c[p.sitio] = (c[p.sitio] || 0) + 1 })
+    return Object.entries(c).sort((a, b) => b[1] - a[1]).map(([k]) => k)
+  }, [partes])
 
   // Opciones de montaje como objetos {label: nombre, sub: "Nº x", raw: montaje}
   const montajeOpts = useMemo(() => montajes.map(m => ({
@@ -48,28 +65,39 @@ export default function NuevoParte({ onGuardado }) {
     const filasValidas = filas.filter(f => f.operario.trim())
     if (!filasValidas.length) return
     setGuardando(true)
-    const parte = { id: genId(), fecha, filas: filasValidas, creadoEn: new Date().toISOString() }
     const todos = await getPartes()
-    await savePartes([...todos, parte])
+    let parte
+    if (editando) {
+      parte = { ...parteEditar, fecha, sitio: sitio.trim(), filas: filasValidas }
+      await savePartes(todos.map(p => p.id === parteEditar.id ? parte : p))
+    } else {
+      parte = { id: genId(), fecha, sitio: sitio.trim(), filas: filasValidas, creadoEn: new Date().toISOString() }
+      await savePartes([...todos, parte])
+    }
     if (ver) await generarParte(parte)
     setGuardando(false)
     setExito(true)
-    setTimeout(() => { setExito(false); onGuardado?.() }, 1600)
-    setFilas([nuevaFila()])
-    setFecha(hoy())
+    if (editando) {
+      setTimeout(() => onTerminado?.(), 1200)
+    } else {
+      setTimeout(() => setExito(false), 1600)
+      setFilas([nuevaFila()])
+      setFecha(hoy())
+      setSitio('')
+    }
   }
 
   const nValidos = filas.filter(f => f.operario.trim()).length
 
   return (
     <div className="fade-in" style={{ height: '100%', overflow: 'auto', display: 'flex', flexDirection: 'column' }}>
-      <Banner sub="Parte de Comida 2026" titulo="Nuevo Parte" count={nValidos} countLabel="Operarios" />
+      <Banner sub="Parte de Comida 2026" titulo={editando ? `Modificar Parte (${parteEditar.fecha?.split('-').reverse().join('/')})` : 'Nuevo Parte'} count={nValidos} countLabel="Operarios" />
 
       <div style={{ padding: 28, display: 'flex', flexDirection: 'column', gap: 18, flex: 1 }}>
 
         {exito && (
           <div style={{ background: '#F0FDF4', border: '1.5px solid #86EFAC', borderRadius: 10, padding: '13px 18px', color: '#16A34A', fontWeight: 700, display: 'flex', gap: 8, alignItems: 'center' }}>
-            ✅ Parte guardado correctamente
+            ✅ {editando ? 'Parte actualizado correctamente' : 'Parte guardado correctamente'}
           </div>
         )}
 
@@ -78,12 +106,28 @@ export default function NuevoParte({ onGuardado }) {
             <label>📅 Fecha del parte</label>
             <input type="date" className="input input-lg" value={fecha} onChange={e => setFecha(e.target.value)} />
           </div>
+          <div style={{ flex: '0 0 280px' }}>
+            <label>🍽️ Sitio de comida</label>
+            <Autocomplete
+              value={sitio}
+              onChange={setSitio}
+              placeholder="¿Dónde se come?"
+              opciones={sitiosNombres}
+              masUsados={usadosSitio}
+              icon="🍽️"
+            />
+          </div>
           <div style={{ flex: 1 }} />
+          {editando && (
+            <button className="btn btn-ghost btn-lg" onClick={() => onTerminado?.()} disabled={guardando}>
+              ✕ Cancelar
+            </button>
+          )}
           <button className="btn btn-secondary btn-lg" onClick={() => guardar(false)} disabled={!nValidos || guardando}>
-            💾 Guardar
+            💾 {editando ? 'Guardar cambios' : 'Guardar'}
           </button>
           <button className="btn btn-primary btn-lg" onClick={() => guardar(true)} disabled={!nValidos || guardando}>
-            👁 Guardar y ver parte
+            👁 {editando ? 'Guardar y ver parte' : 'Guardar y ver parte'}
           </button>
         </div>
 

@@ -55,6 +55,21 @@ export async function generarParte(parte) {
     })
   }
 
+  // Sitio de comida — en el lado contrario a la fecha (alineado a la derecha)
+  if (parte.sitio) {
+    const ySitio = PAGE_H - (Y_FECHA_TOP + FONT_SIZE)
+    const wNombre = font.widthOfTextAtSize(parte.sitio, FONT_SIZE)
+    const etiqueta = 'SITIO:'
+    const wEtiqueta = fontBold.widthOfTextAtSize(etiqueta, FONT_SIZE)
+    const xNombre = TABLA_X1 - wNombre
+    page.drawText(etiqueta, {
+      x: xNombre - wEtiqueta - 6, y: ySitio, size: FONT_SIZE, font: fontBold, color: rgb(0.35, 0.36, 0.42),
+    })
+    page.drawText(parte.sitio, {
+      x: xNombre, y: ySitio, size: FONT_SIZE, font, color: negro,
+    })
+  }
+
   const filas = (parte.filas || []).slice(0, FILA_MAX)
   const n = filas.length
 

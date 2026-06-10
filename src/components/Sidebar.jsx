@@ -3,6 +3,7 @@ const NAV = [
   { id: 'consultas', icon: '🔍', label: 'Consultas', desc: 'Ver guardados' },
   { id: 'operarios', icon: '👷', label: 'Operarios', desc: 'Gestionar personal' },
   { id: 'montajes', icon: '🏗️', label: 'Montajes', desc: 'Nombre y número' },
+  { id: 'sitios', icon: '🍽️', label: 'Sitios de comida', desc: 'Dónde se come' },
   { id: 'ajustes', icon: '⚙️', label: 'Ajustes', desc: 'Actualización y datos' },
 ]
 

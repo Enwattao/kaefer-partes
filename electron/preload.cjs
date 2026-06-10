@@ -11,6 +11,8 @@ contextBridge.exposeInMainWorld('api', {
   saveOperarios: (d) => ipcRenderer.invoke('save-operarios', d),
   getMontajes: () => ipcRenderer.invoke('get-montajes'),
   saveMontajes: (d) => ipcRenderer.invoke('save-montajes', d),
+  getSitios: () => ipcRenderer.invoke('get-sitios'),
+  saveSitios: (d) => ipcRenderer.invoke('save-sitios', d),
   getPartes: () => ipcRenderer.invoke('get-partes'),
   savePartes: (d) => ipcRenderer.invoke('save-partes', d),
   getDataPath: () => ipcRenderer.invoke('get-data-path'),

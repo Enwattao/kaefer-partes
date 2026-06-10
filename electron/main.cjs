@@ -28,6 +28,8 @@ function ensureDataDir() {
   })
   const partesFp = path.join(dataDir, 'partes.json')
   if (!fs.existsSync(partesFp)) fs.writeFileSync(partesFp, '[]', 'utf-8')
+  const sitiosFp = path.join(dataDir, 'sitios.json')
+  if (!fs.existsSync(sitiosFp)) fs.writeFileSync(sitiosFp, '[]', 'utf-8')
 }
 
 function readJson(name) {
@@ -82,6 +84,9 @@ ipcMain.handle('save-operarios', (_, data) => { writeJson('operarios.json', data
 
 ipcMain.handle('get-montajes', () => readJson('montajes.json'))
 ipcMain.handle('save-montajes', (_, data) => { writeJson('montajes.json', data); return true })
+
+ipcMain.handle('get-sitios', () => readJson('sitios.json'))
+ipcMain.handle('save-sitios', (_, data) => { writeJson('sitios.json', data); return true })
 
 ipcMain.handle('get-partes', () => readJson('partes.json'))
 ipcMain.handle('save-partes', (_, data) => { writeJson('partes.json', data); return true })
