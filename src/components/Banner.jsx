@@ -1,8 +1,8 @@
 export default function Banner({ sub, titulo, icon, count, countLabel }) {
   return (
-    <div style={{
+    <div className="banner-pad" style={{
       background: 'linear-gradient(120deg, #E3000F 0%, #B8000C 100%)',
-      padding: '26px 32px', color: '#fff', position: 'relative', overflow: 'hidden', flexShrink: 0,
+      color: '#fff', position: 'relative', overflow: 'hidden', flexShrink: 0,
     }}>
       <div style={{ position: 'absolute', right: -30, top: -40, width: 200, height: 200, borderRadius: '50%', background: 'rgba(255,255,255,.07)' }} />
       <div style={{ position: 'absolute', right: 80, bottom: -60, width: 140, height: 140, borderRadius: '50%', background: 'rgba(255,255,255,.05)' }} />

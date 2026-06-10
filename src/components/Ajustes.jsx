@@ -47,7 +47,7 @@ export default function Ajustes() {
     <div className="fade-in" style={{ height: '100%', overflow: 'auto', display: 'flex', flexDirection: 'column' }}>
       <Banner sub="Configuración" titulo="Ajustes" icon="⚙️" />
 
-      <div style={{ padding: 28, display: 'flex', flexDirection: 'column', gap: 18, maxWidth: 680, width: '100%', margin: '0 auto' }}>
+      <div className="page-pad" style={{ display: 'flex', flexDirection: 'column', gap: 18, maxWidth: 680, width: '100%', margin: '0 auto' }}>
 
         {/* Actualización */}
         <div className="card">

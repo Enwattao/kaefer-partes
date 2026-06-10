@@ -138,11 +138,31 @@ async function abrir(bytes, nombre) {
   if (typeof window !== 'undefined' && window.api?.abrirPdf) {
     // Electron: escribe a temporal y abre en el visor del sistema
     await window.api.abrirPdf(bytes, nombre)
-  } else {
-    // Navegador (dev): abre en pestaña nueva
-    const blob = new Blob([bytes], { type: 'application/pdf' })
-    const url = URL.createObjectURL(blob)
-    window.open(url, '_blank')
-    setTimeout(() => URL.revokeObjectURL(url), 60000)
+    return
   }
+  const blob = new Blob([bytes], { type: 'application/pdf' })
+  // iPhone/iPad: hoja de compartir (ver, imprimir con AirPrint, enviar…)
+  const esIOS = /iPhone|iPad|iPod/.test(navigator.userAgent)
+  if (esIOS && navigator.canShare) {
+    const file = new File([blob], nombre, { type: 'application/pdf' })
+    if (navigator.canShare({ files: [file] })) {
+      try {
+        await navigator.share({ files: [file], title: nombre })
+        return
+      } catch { /* cancelado por el usuario → seguimos al plan B */ }
+    }
+  }
+  // Navegador normal: pestaña nueva
+  const url = URL.createObjectURL(blob)
+  const win = window.open(url, '_blank')
+  if (!win) {
+    // popup bloqueado: descarga directa
+    const a = document.createElement('a')
+    a.href = url
+    a.download = nombre
+    document.body.appendChild(a)
+    a.click()
+    document.body.removeChild(a)
+  }
+  setTimeout(() => URL.revokeObjectURL(url), 60000)
 }

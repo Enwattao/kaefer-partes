@@ -36,7 +36,7 @@ export default function Montajes() {
     <div className="fade-in" style={{ height: '100%', overflow: 'auto', display: 'flex', flexDirection: 'column' }}>
       <Banner sub="Gestión" titulo="Montajes" icon="🏗️" count={items.length} countLabel="Montajes" />
 
-      <div style={{ padding: 28, display: 'flex', flexDirection: 'column', gap: 18, maxWidth: 760, width: '100%', margin: '0 auto' }}>
+      <div className="page-pad" style={{ display: 'flex', flexDirection: 'column', gap: 18, maxWidth: 760, width: '100%', margin: '0 auto' }}>
         {/* Añadir */}
         <div className="card">
           <div className="card-body" style={{ display: 'flex', gap: 10, alignItems: 'flex-start', flexWrap: 'wrap' }}>

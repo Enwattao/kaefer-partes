@@ -93,7 +93,7 @@ export default function NuevoParte({ parteEditar = null, onTerminado }) {
     <div className="fade-in" style={{ height: '100%', overflow: 'auto', display: 'flex', flexDirection: 'column' }}>
       <Banner sub="Parte de Comida 2026" titulo={editando ? `Modificar Parte (${parteEditar.fecha?.split('-').reverse().join('/')})` : 'Nuevo Parte'} count={nValidos} countLabel="Operarios" />
 
-      <div style={{ padding: 28, display: 'flex', flexDirection: 'column', gap: 18, flex: 1 }}>
+      <div className="page-pad" style={{ display: 'flex', flexDirection: 'column', gap: 18, flex: 1 }}>
 
         {exito && (
           <div style={{ background: '#F0FDF4', border: '1.5px solid #86EFAC', borderRadius: 10, padding: '13px 18px', color: '#16A34A', fontWeight: 700, display: 'flex', gap: 8, alignItems: 'center' }}>

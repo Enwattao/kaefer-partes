@@ -62,7 +62,7 @@ export default function Consultas({ onEditar }) {
     <div className="fade-in" style={{ height: '100%', overflow: 'auto', display: 'flex', flexDirection: 'column' }}>
       <Banner sub="Partes guardados" titulo="Consultas" icon="🔍" count={partes.length} countLabel="Partes" />
 
-      <div style={{ padding: 28, display: 'flex', flexDirection: 'column', gap: 20 }}>
+      <div className="page-pad" style={{ display: 'flex', flexDirection: 'column', gap: 20 }}>
 
       {/* Filtros */}
       <div className="card">

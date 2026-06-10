@@ -8,3 +8,8 @@ createRoot(document.getElementById('root')).render(
     <App />
   </StrictMode>,
 )
+
+// Service worker solo en web (https) — en Electron (file://) no aplica
+if ('serviceWorker' in navigator && location.protocol === 'https:') {
+  import('virtual:pwa-register').then(({ registerSW }) => registerSW({ immediate: true })).catch(() => {})
+}

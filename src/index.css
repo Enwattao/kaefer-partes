@@ -90,3 +90,13 @@ tbody td:first-child { color: var(--text); font-weight: 500; }
 .badge-red { background: var(--red); color: #fff; }
 
 label { font-size: 12.5px; font-weight: 600; color: var(--text2); display: block; margin-bottom: 5px; text-transform: uppercase; letter-spacing: .03em; }
+
+/* Responsive (móvil / PWA iPhone) */
+.page-pad { padding: 28px; }
+.banner-pad { padding: 26px 32px; }
+@media (max-width: 700px) {
+  .page-pad { padding: 13px; }
+  .banner-pad { padding: 15px 16px; }
+  .modal { min-width: 0; width: calc(100vw - 28px); padding: 18px; }
+  .btn-lg { height: 42px; padding: 0 16px; font-size: 14px; }
+}
