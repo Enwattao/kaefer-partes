@@ -1,6 +1,7 @@
 const NAV = [
   { id: 'nuevo', icon: '📝', label: 'Nuevo' },
   { id: 'consultas', icon: '🔍', label: 'Consultas' },
+  { id: 'resumenes', icon: '📊', label: 'Resumen' },
   { id: 'operarios', icon: '👷', label: 'Operarios' },
   { id: 'montajes', icon: '🏗️', label: 'Montajes' },
   { id: 'sitios', icon: '🍽️', label: 'Sitios' },

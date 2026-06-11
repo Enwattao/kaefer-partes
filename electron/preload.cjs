@@ -20,6 +20,4 @@ contextBridge.exposeInMainWorld('api', {
   appVersion: () => ipcRenderer.invoke('app-version'),
   abrirUrl: (url) => ipcRenderer.invoke('abrir-url', url),
   abrirCarpetaDatos: () => ipcRenderer.invoke('abrir-carpeta-datos'),
-  buscarActualizacion: () => ipcRenderer.invoke('buscar-actualizacion'),
-  instalarActualizacion: (url) => ipcRenderer.invoke('instalar-actualizacion', url),
 })

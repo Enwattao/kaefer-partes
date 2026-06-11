@@ -5,9 +5,6 @@ const os = require('os')
 
 const isDev = process.env.NODE_ENV === 'development'
 
-// Repositorio de GitHub para actualizaciones (fijo, el usuario no escribe nada)
-const REPO = 'Enwattao/kaefer-partes'
-
 // En portable, datos junto al .exe real (PORTABLE_EXECUTABLE_DIR lo da electron-builder).
 const portableDir = process.env.PORTABLE_EXECUTABLE_DIR
 const dataDir = isDev
@@ -107,49 +104,3 @@ ipcMain.handle('abrir-pdf', async (_, bytes, nombre) => {
 ipcMain.handle('app-version', () => app.getVersion())
 ipcMain.handle('abrir-url', (_, url) => shell.openExternal(url))
 ipcMain.handle('abrir-carpeta-datos', () => shell.openPath(dataDir))
-
-// --- Actualización online (un solo botón) ---
-function esMasNueva(actual, ultima) {
-  const a = String(actual).replace(/^v/, '').split('.').map(n => parseInt(n) || 0)
-  const b = String(ultima).replace(/^v/, '').split('.').map(n => parseInt(n) || 0)
-  for (let i = 0; i < 3; i++) {
-    if ((b[i] || 0) > (a[i] || 0)) return true
-    if ((b[i] || 0) < (a[i] || 0)) return false
-  }
-  return false
-}
-
-// Comprueba la última release publicada en GitHub
-ipcMain.handle('buscar-actualizacion', async () => {
-  const res = await fetch(`https://api.github.com/repos/${REPO}/releases/latest`, {
-    headers: { 'Accept': 'application/vnd.github+json', 'User-Agent': 'kaefer-partes' },
-  })
-  if (res.status === 404) return { hayNueva: false, actual: app.getVersion(), sinReleases: true }
-  if (!res.ok) throw new Error('GitHub respondió ' + res.status)
-  const data = await res.json()
-  const ultima = (data.tag_name || '').replace(/^v/, '')
-  const asset = (data.assets || []).find(a => a.name.toLowerCase().endsWith('.exe'))
-  return {
-    hayNueva: esMasNueva(app.getVersion(), ultima) && !!asset,
-    version: ultima,
-    actual: app.getVersion(),
-    url: asset ? asset.browser_download_url : null,
-  }
-})
-
-// Descarga el nuevo .exe, reemplaza el portable y reinicia
-ipcMain.handle('instalar-actualizacion', async (_, url) => {
-  const destino = process.env.PORTABLE_EXECUTABLE_FILE
-  if (!destino) throw new Error('La actualización automática solo funciona en la versión portable.')
-  const res = await fetch(url, { headers: { 'User-Agent': 'kaefer-partes' } })
-  if (!res.ok) throw new Error('No se pudo descargar (' + res.status + ')')
-  const buf = Buffer.from(await res.arrayBuffer())
-  const tmp = path.join(os.tmpdir(), 'kaefer-partes-update.exe')
-  fs.writeFileSync(tmp, buf)
-  // El portable en ejecución corre desde una copia temporal, así que el .exe original no está bloqueado
-  fs.copyFileSync(tmp, destino)
-  const { spawn } = require('child_process')
-  spawn(destino, [], { detached: true, stdio: 'ignore' }).unref()
-  setTimeout(() => app.quit(), 600)
-  return true
-})

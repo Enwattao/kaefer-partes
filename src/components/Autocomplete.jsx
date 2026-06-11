@@ -6,7 +6,7 @@ function norm(o) { return typeof o === 'string' ? { label: o, raw: o } : o }
 // Campo con autocompletado. Al enfocar sin texto → muestra "más usados".
 // Al escribir → filtra. Soporta opciones string u objeto {label, sub, raw}.
 // onChange(texto): escritura libre. onPick(raw): selección de la lista.
-export default function Autocomplete({ value, onChange, onPick, placeholder, opciones, masUsados = [], icon }) {
+export default function Autocomplete({ value, onChange, onPick, onEnter, placeholder, opciones, masUsados = [], icon, grande = false, autoFocus = false }) {
   const [abierto, setAbierto] = useState(false)
   const ref = useRef(null)
 
@@ -41,11 +41,20 @@ export default function Autocomplete({ value, onChange, onPick, placeholder, opc
     <div ref={ref} style={{ position: 'relative' }}>
       <input
         className="input"
-        style={{ height: 36, fontSize: 13.5 }}
+        style={grande ? { height: 46, fontSize: 15.5, fontWeight: 500 } : { height: 36, fontSize: 13.5 }}
         value={value || ''}
         placeholder={placeholder}
+        autoFocus={autoFocus}
         onChange={e => { onChange(e.target.value); setAbierto(true) }}
         onFocus={() => setAbierto(true)}
+        onKeyDown={e => {
+          if (e.key === 'Enter' && onEnter) {
+            // Enter: si hay una única coincidencia la elige; si no, añade lo escrito
+            if (txt && lista.length === 1) elegir(lista[0])
+            else if ((value || '').trim()) { onEnter(value.trim()); setAbierto(false) }
+          }
+          if (e.key === 'Escape') setAbierto(false)
+        }}
       />
       {abierto && lista.length > 0 && (
         <div style={{

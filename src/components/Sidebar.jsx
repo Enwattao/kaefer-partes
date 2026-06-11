@@ -1,10 +1,11 @@
 const NAV = [
   { id: 'nuevo', icon: '📝', label: 'Nuevo Parte', desc: 'Crear parte' },
   { id: 'consultas', icon: '🔍', label: 'Consultas', desc: 'Ver guardados' },
+  { id: 'resumenes', icon: '📊', label: 'Resúmenes', desc: 'Recuentos y totales' },
   { id: 'operarios', icon: '👷', label: 'Operarios', desc: 'Gestionar personal' },
   { id: 'montajes', icon: '🏗️', label: 'Montajes', desc: 'Nombre y número' },
   { id: 'sitios', icon: '🍽️', label: 'Sitios de comida', desc: 'Dónde se come' },
-  { id: 'ajustes', icon: '⚙️', label: 'Ajustes', desc: 'Actualización y datos' },
+  { id: 'ajustes', icon: '⚙️', label: 'Ajustes', desc: 'Datos y versión' },
 ]
 
 export default function Sidebar({ pantalla, setPantalla }) {

@@ -4,7 +4,7 @@ import { generarParte } from '../lib/pdf.js'
 import Autocomplete from './Autocomplete.jsx'
 import Banner from './Banner.jsx'
 
-const FILAS_MAX = 16
+const FILAS_MAX = 48 // hasta 3 hojas de 16
 
 export default function NuevoParte({ parteEditar = null, onTerminado }) {
   const editando = !!parteEditar
@@ -55,7 +55,19 @@ export default function NuevoParte({ parteEditar = null, onTerminado }) {
       .map(m => ({ label: m.nombre, sub: String(m.numero), raw: m }))
   }, [partes, montajes])
 
-  function addFila() { if (filas.length < FILAS_MAX) setFilas(f => [...f, nuevaFila()]) }
+  // La fila nueva hereda el montaje de la última (se repite; se puede cambiar pinchando en su campo)
+  function addFila() {
+    if (filas.length >= FILAS_MAX) return
+    setFilas(f => {
+      const ult = f[f.length - 1]
+      const nueva = nuevaFila()
+      if (ult?.montajeNombre) {
+        nueva.montajeNombre = ult.montajeNombre
+        nueva.montajeNumero = ult.montajeNumero
+      }
+      return [...f, nueva]
+    })
+  }
   function updateFila(idx, patch) { setFilas(f => f.map((r, i) => i === idx ? { ...r, ...patch } : r)) }
   function removeFila(idx) {
     setFilas(f => f.length === 1 ? [nuevaFila()] : f.filter((_, i) => i !== idx))
@@ -136,6 +148,7 @@ export default function NuevoParte({ parteEditar = null, onTerminado }) {
             <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
               <span style={{ fontWeight: 700, fontSize: 15 }}>👷 Operarios del parte</span>
               <span className="chip chip-gray">{filas.length} / {FILAS_MAX}</span>
+              {nValidos > 16 && <span className="chip chip-blue">📄 {Math.ceil(nValidos / 16)} hojas</span>}
             </div>
             <span style={{ fontSize: 12, color: 'var(--text3)' }}>En el PDF solo sale el nº de montaje</span>
           </div>

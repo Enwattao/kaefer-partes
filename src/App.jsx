@@ -7,6 +7,7 @@ import Consultas from './components/Consultas.jsx'
 import Operarios from './components/Operarios.jsx'
 import Montajes from './components/Montajes.jsx'
 import Sitios from './components/Sitios.jsx'
+import Resumenes from './components/Resumenes.jsx'
 import Ajustes from './components/Ajustes.jsx'
 
 function useMovil() {
@@ -52,6 +53,7 @@ export default function App() {
             />
           )}
           {pantalla === 'consultas' && <Consultas onEditar={editarParte} />}
+          {pantalla === 'resumenes' && <Resumenes />}
           {pantalla === 'operarios' && <Operarios />}
           {pantalla === 'montajes' && <Montajes />}
           {pantalla === 'sitios' && <Sitios />}

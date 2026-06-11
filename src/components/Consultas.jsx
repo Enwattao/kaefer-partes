@@ -40,6 +40,19 @@ export default function Consultas({ onEditar }) {
   const monOptions = useMemo(() => montajes.map(m => ({ label: m.nombre, sub: String(m.numero), raw: m.nombre })), [montajes])
   const sitOptions = useMemo(() => sitios.map(s => s.nombre), [sitios])
 
+  // Historial del operario buscado: cada comida con su fecha, sitio y montaje
+  const historialOp = useMemo(() => {
+    const q = filtrOp.trim().toLowerCase()
+    if (!q) return []
+    const out = []
+    partes.forEach(p => p.filas?.forEach(f => {
+      if (f.operario?.toLowerCase().includes(q)) {
+        out.push({ fecha: p.fecha, operario: f.operario, sitio: p.sitio || '', montaje: montajeTxt(f) })
+      }
+    }))
+    return out.sort((a, b) => b.fecha.localeCompare(a.fecha))
+  }, [partes, filtrOp])
+
   const filtrados = useMemo(() => {
     return partes.filter(p => {
       if (filtrFecha && !p.fecha.includes(filtrFecha)) return false
@@ -91,6 +104,38 @@ export default function Consultas({ onEditar }) {
           </button>
         </div>
       </div>
+
+      {/* Historial del operario buscado: dónde y cuándo ha comido */}
+      {filtrOp.trim() && historialOp.length > 0 && (
+        <div className="card" style={{ borderLeft: '4px solid var(--red)' }}>
+          <div className="card-header" style={{ justifyContent: 'space-between' }}>
+            <span style={{ fontWeight: 700 }}>📜 Historial de {filtrOp.trim()}</span>
+            <span className="chip chip-red" style={{ fontWeight: 700 }}>{historialOp.length} comida{historialOp.length !== 1 ? 's' : ''}</span>
+          </div>
+          <div style={{ maxHeight: 280, overflow: 'auto' }}>
+            <table>
+              <thead>
+                <tr>
+                  <th>Fecha</th>
+                  <th>Operario</th>
+                  <th>Sitio</th>
+                  <th>Montaje</th>
+                </tr>
+              </thead>
+              <tbody>
+                {historialOp.map((h, i) => (
+                  <tr key={i}>
+                    <td style={{ fontWeight: 600 }}>{fmtFecha(h.fecha)}</td>
+                    <td>{h.operario}</td>
+                    <td>{h.sitio ? `🍽️ ${h.sitio}` : '—'}</td>
+                    <td>{h.montaje || '—'}</td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        </div>
+      )}
 
       {/* Lista de partes */}
       {filtrados.length === 0 ? (

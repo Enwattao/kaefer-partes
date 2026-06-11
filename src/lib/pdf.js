@@ -38,78 +38,101 @@ async function cargarPlantilla() {
   return cachePlantilla
 }
 
+const MAX_TOTAL = 48 // hasta 3 hojas
+
 export async function generarParte(parte) {
   const plantillaBytes = await cargarPlantilla()
   const pdfDoc = await PDFDocument.load(plantillaBytes)
   const font = await pdfDoc.embedFont(StandardFonts.Helvetica)
   const fontBold = await pdfDoc.embedFont(StandardFonts.HelveticaBold)
-  const page = pdfDoc.getPages()[0]
   const negro = rgb(0.1, 0.1, 0.13)
   const grisSombra = rgb(0.74, 0.75, 0.78)
   const grisTexto = rgb(0.45, 0.46, 0.52)
 
-  // Fecha
-  if (parte.fecha) {
-    page.drawText(fmtFecha(parte.fecha), {
-      x: X_FECHA, y: PAGE_H - (Y_FECHA_TOP + FONT_SIZE), size: FONT_SIZE, font, color: negro,
-    })
-  }
-
-  // Sitio de comida — en el lado contrario a la fecha (alineado a la derecha)
-  if (parte.sitio) {
-    const ySitio = PAGE_H - (Y_FECHA_TOP + FONT_SIZE)
-    const wNombre = font.widthOfTextAtSize(parte.sitio, FONT_SIZE)
-    const etiqueta = 'SITIO:'
-    const wEtiqueta = fontBold.widthOfTextAtSize(etiqueta, FONT_SIZE)
-    const xNombre = TABLA_X1 - wNombre
-    page.drawText(etiqueta, {
-      x: xNombre - wEtiqueta - 6, y: ySitio, size: FONT_SIZE, font: fontBold, color: rgb(0.35, 0.36, 0.42),
-    })
-    page.drawText(parte.sitio, {
-      x: xNombre, y: ySitio, size: FONT_SIZE, font, color: negro,
-    })
-  }
-
-  const filas = (parte.filas || []).slice(0, FILA_MAX)
+  const filas = (parte.filas || []).slice(0, MAX_TOTAL)
   const n = filas.length
+  const numPags = Math.max(1, Math.ceil(n / FILA_MAX))
 
-  // Filas con operarios: cuadradito vacío + nombre + montaje
-  filas.forEach((fila, i) => {
-    const base = baselineFila(i)
-    if (fila.operario) {
-      dibujarCheckbox(page, X_CHECK, i)
-      page.drawText(recortar(fila.operario, font, FONT_SIZE, COL_DIV - X_NOMBRE - 6), {
-        x: X_NOMBRE, y: base, size: FONT_SIZE, font, color: negro,
+  // Duplicar la plantilla para las hojas extra (antes de dibujar nada)
+  for (let p = 1; p < numPags; p++) {
+    const [copia] = await pdfDoc.copyPages(pdfDoc, [0])
+    pdfDoc.addPage(copia)
+  }
+
+  const pages = pdfDoc.getPages()
+  pages.forEach((page, p) => {
+    // Fecha
+    if (parte.fecha) {
+      page.drawText(fmtFecha(parte.fecha), {
+        x: X_FECHA, y: PAGE_H - (Y_FECHA_TOP + FONT_SIZE), size: FONT_SIZE, font, color: negro,
       })
     }
-    // En el PDF solo sale el NÚMERO de montaje (el nombre es solo para rellenar)
-    const montajeTxt = String(fila.montajeNumero ?? fila.montaje ?? '')
-    if (montajeTxt) {
-      page.drawText(recortar(montajeTxt, font, FONT_SIZE, TABLA_X1 - X_MONTAJE - 6), {
-        x: X_MONTAJE, y: base, size: FONT_SIZE, font, color: negro,
+
+    // Indicador de hoja (solo si hay varias)
+    if (numPags > 1) {
+      const txt = `Hoja ${p + 1} de ${numPags}`
+      const w = font.widthOfTextAtSize(txt, 8.5)
+      page.drawText(txt, {
+        x: (TABLA_X0 + TABLA_X1) / 2 - w / 2, y: PAGE_H - (Y_FECHA_TOP + FONT_SIZE), size: 8.5, font, color: grisTexto,
       })
+    }
+
+    // Sitio de comida — en el lado contrario a la fecha (alineado a la derecha)
+    if (parte.sitio) {
+      const ySitio = PAGE_H - (Y_FECHA_TOP + FONT_SIZE)
+      const wNombre = font.widthOfTextAtSize(parte.sitio, FONT_SIZE)
+      const etiqueta = 'SITIO:'
+      const wEtiqueta = fontBold.widthOfTextAtSize(etiqueta, FONT_SIZE)
+      const xNombre = TABLA_X1 - wNombre
+      page.drawText(etiqueta, {
+        x: xNombre - wEtiqueta - 6, y: ySitio, size: FONT_SIZE, font: fontBold, color: rgb(0.35, 0.36, 0.42),
+      })
+      page.drawText(parte.sitio, {
+        x: xNombre, y: ySitio, size: FONT_SIZE, font, color: negro,
+      })
+    }
+
+    // Filas de esta hoja
+    const chunk = filas.slice(p * FILA_MAX, (p + 1) * FILA_MAX)
+    chunk.forEach((fila, i) => {
+      const base = baselineFila(i)
+      if (fila.operario) {
+        dibujarCheckbox(page, X_CHECK, i)
+        page.drawText(recortar(fila.operario, font, FONT_SIZE, COL_DIV - X_NOMBRE - 6), {
+          x: X_NOMBRE, y: base, size: FONT_SIZE, font, color: negro,
+        })
+      }
+      // En el PDF solo sale el NÚMERO de montaje (el nombre es solo para rellenar)
+      const montajeTxt = String(fila.montajeNumero ?? fila.montaje ?? '')
+      if (montajeTxt) {
+        page.drawText(recortar(montajeTxt, font, FONT_SIZE, TABLA_X1 - X_MONTAJE - 6), {
+          x: X_MONTAJE, y: base, size: FONT_SIZE, font, color: negro,
+        })
+      }
+    })
+
+    // Solo en la última hoja: recuento TOTAL y filas sobrantes sombreadas
+    const esUltima = p === numPags - 1
+    if (esUltima) {
+      const k = chunk.length
+      if (n > 0 && k < FILA_MAX) {
+        const texto = `${n} Operario${n !== 1 ? 's' : ''}`
+        const size = 10.5
+        const w = fontBold.widthOfTextAtSize(texto, size)
+        page.drawText(texto, {
+          x: (TABLA_X0 + COL_DIV) / 2 - w / 2, y: baselineFila(k, size), size, font: fontBold, color: grisTexto,
+        })
+      }
+      const desde = k < FILA_MAX ? k + 1 : FILA_MAX
+      for (let i = desde; i < FILA_MAX; i++) {
+        const top = topDe(i), h = altoDe(i)
+        page.drawRectangle({
+          x: TABLA_X0, y: PAGE_H - (top + h), width: TABLA_X1 - TABLA_X0, height: h,
+          color: grisSombra, opacity: 0.55,
+        })
+      }
     }
   })
-
-  // Fila de recuento: "N Operarios" centrado tras el último
-  if (n > 0 && n < FILA_MAX) {
-    const texto = `${n} Operario${n !== 1 ? 's' : ''}`
-    const size = 10.5
-    const w = fontBold.widthOfTextAtSize(texto, size)
-    page.drawText(texto, {
-      x: (TABLA_X0 + COL_DIV) / 2 - w / 2, y: baselineFila(n, size), size, font: fontBold, color: grisTexto,
-    })
-  }
-
-  // Filas sobrantes sombreadas (desactivadas)
-  const desde = n < FILA_MAX ? n + 1 : FILA_MAX
-  for (let i = desde; i < FILA_MAX; i++) {
-    const top = topDe(i), h = altoDe(i)
-    page.drawRectangle({
-      x: TABLA_X0, y: PAGE_H - (top + h), width: TABLA_X1 - TABLA_X0, height: h,
-      color: grisSombra, opacity: 0.55,
-    })
-  }
 
   const bytes = await pdfDoc.save()
   await abrir(bytes, `Parte_${parte.fecha || 'sin-fecha'}.pdf`)
