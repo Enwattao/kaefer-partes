@@ -1,9 +1,23 @@
-// Capa de acceso a datos — usa window.api (Electron IPC) o localStorage (dev web)
+// Capa de acceso a datos — usa window.api (Electron IPC) o localStorage (web/PWA)
+import seedOperarios from '../seed/operarios.json'
+import seedMontajes from '../seed/montajes.json'
+import seedSitios from '../seed/sitios.json'
+
 const isElectron = typeof window !== 'undefined' && window.api
+
+// En web: si la clave no existe todavía (primera vez), se carga la lista inicial
+function leerConSeed(clave, seed) {
+  const raw = localStorage.getItem(clave)
+  if (raw === null) {
+    localStorage.setItem(clave, JSON.stringify(seed))
+    return JSON.parse(JSON.stringify(seed))
+  }
+  return JSON.parse(raw)
+}
 
 export async function getOperarios() {
   if (isElectron) return window.api.getOperarios()
-  return JSON.parse(localStorage.getItem('operarios') || '[]')
+  return leerConSeed('operarios', seedOperarios)
 }
 export async function saveOperarios(data) {
   if (isElectron) return window.api.saveOperarios(data)
@@ -12,7 +26,7 @@ export async function saveOperarios(data) {
 
 export async function getMontajes() {
   if (isElectron) return window.api.getMontajes()
-  return JSON.parse(localStorage.getItem('montajes') || '[]')
+  return leerConSeed('montajes', seedMontajes)
 }
 export async function saveMontajes(data) {
   if (isElectron) return window.api.saveMontajes(data)
@@ -21,7 +35,7 @@ export async function saveMontajes(data) {
 
 export async function getSitios() {
   if (isElectron) return window.api.getSitios()
-  return JSON.parse(localStorage.getItem('sitios') || '[]')
+  return leerConSeed('sitios', seedSitios)
 }
 export async function saveSitios(data) {
   if (isElectron) return window.api.saveSitios(data)

@@ -25,8 +25,16 @@ function ensureDataDir() {
   })
   const partesFp = path.join(dataDir, 'partes.json')
   if (!fs.existsSync(partesFp)) fs.writeFileSync(partesFp, '[]', 'utf-8')
+  // sitios: sembrar también si el archivo existe pero está vacío (instalaciones anteriores)
   const sitiosFp = path.join(dataDir, 'sitios.json')
-  if (!fs.existsSync(sitiosFp)) fs.writeFileSync(sitiosFp, '[]', 'utf-8')
+  const sitiosSeedFp = path.join(seedDir, 'sitios.json')
+  let sitiosVacio = !fs.existsSync(sitiosFp)
+  if (!sitiosVacio) {
+    try { sitiosVacio = JSON.parse(fs.readFileSync(sitiosFp, 'utf-8')).length === 0 } catch { sitiosVacio = true }
+  }
+  if (sitiosVacio) {
+    fs.writeFileSync(sitiosFp, fs.existsSync(sitiosSeedFp) ? fs.readFileSync(sitiosSeedFp) : '[]')
+  }
 }
 
 function readJson(name) {

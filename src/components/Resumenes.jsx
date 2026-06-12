@@ -78,6 +78,114 @@ export default function Resumenes() {
     ? `${desde ? fmtFecha(desde) : '…'} — ${hasta ? fmtFecha(hasta) : '…'}`
     : 'Todas las fechas'
 
+  // Exportar Excel con formato (colores KAEFER, dos hojas: Resumen y Detalle)
+  async function exportarExcel() {
+    const ExcelJS = (await import('exceljs')).default
+    const ROJO = 'FFE3000F', OSCURO = 'FF1A1A2E', ZEBRA = 'FFF5F6F8', ROJO_CLARO = 'FFFFF0F0'
+    const grupoLabel = agrupar === 'sitio' ? 'Sitio' : agrupar === 'montaje' ? 'Montaje' : 'Operario'
+    const borde = { style: 'thin', color: { argb: 'FFD8DAE0' } }
+    const bordes = { top: borde, bottom: borde, left: borde, right: borde }
+
+    const wb = new ExcelJS.Workbook()
+
+    // ===== Hoja 1: Resumen =====
+    const ws = wb.addWorksheet('Resumen')
+    ws.columns = [{ width: 38 }, { width: 12 }, { width: 12 }]
+
+    ws.mergeCells('A1:C1')
+    const t = ws.getCell('A1')
+    t.value = 'KAEFER — RESUMEN DE COMIDAS'
+    t.font = { bold: true, size: 15, color: { argb: 'FFFFFFFF' } }
+    t.fill = { type: 'pattern', pattern: 'solid', fgColor: { argb: ROJO } }
+    t.alignment = { horizontal: 'center', vertical: 'middle' }
+    ws.getRow(1).height = 30
+
+    ws.mergeCells('A2:C2')
+    ws.getCell('A2').value = `Periodo: ${rangoTxt}   ·   Agrupado por: ${grupoLabel}`
+    ws.getCell('A2').font = { italic: true, size: 11, color: { argb: 'FF4A4A6A' } }
+    ws.getCell('A2').alignment = { horizontal: 'center' }
+    ws.getRow(2).height = 20
+
+    const head = ws.getRow(4)
+    head.values = [grupoLabel, 'Días', 'Comidas']
+    head.eachCell(c => {
+      c.font = { bold: true, size: 11, color: { argb: 'FFFFFFFF' } }
+      c.fill = { type: 'pattern', pattern: 'solid', fgColor: { argb: OSCURO } }
+      c.alignment = { horizontal: 'center', vertical: 'middle' }
+      c.border = bordes
+    })
+    head.height = 22
+
+    grupos.forEach((g, i) => {
+      const r = ws.getRow(5 + i)
+      r.values = [g.nombre, g.dias, g.comidas]
+      r.getCell(1).font = { size: 11 }
+      r.getCell(2).alignment = { horizontal: 'center' }
+      r.getCell(3).alignment = { horizontal: 'center' }
+      r.getCell(3).font = { bold: true, size: 11, color: { argb: ROJO } }
+      r.eachCell(c => {
+        c.border = bordes
+        if (i % 2) c.fill = { type: 'pattern', pattern: 'solid', fgColor: { argb: ZEBRA } }
+      })
+    })
+
+    const totRow = ws.getRow(5 + grupos.length)
+    totRow.values = ['TOTAL', '', totalComidas]
+    totRow.eachCell(c => {
+      c.font = { bold: true, size: 12 }
+      c.fill = { type: 'pattern', pattern: 'solid', fgColor: { argb: ROJO_CLARO } }
+      c.border = bordes
+    })
+    totRow.getCell(3).alignment = { horizontal: 'center' }
+    totRow.getCell(3).font = { bold: true, size: 12, color: { argb: ROJO } }
+    totRow.height = 22
+
+    // ===== Hoja 2: Detalle =====
+    const wd = wb.addWorksheet('Detalle')
+    wd.columns = [{ width: 13 }, { width: 36 }, { width: 26 }, { width: 24 }]
+
+    wd.mergeCells('A1:D1')
+    const td = wd.getCell('A1')
+    td.value = `DETALLE DE COMIDAS · ${rangoTxt}`
+    td.font = { bold: true, size: 13, color: { argb: 'FFFFFFFF' } }
+    td.fill = { type: 'pattern', pattern: 'solid', fgColor: { argb: ROJO } }
+    td.alignment = { horizontal: 'center', vertical: 'middle' }
+    wd.getRow(1).height = 26
+
+    const headD = wd.getRow(3)
+    headD.values = ['Fecha', 'Operario', 'Sitio', 'Montaje']
+    headD.eachCell(c => {
+      c.font = { bold: true, size: 11, color: { argb: 'FFFFFFFF' } }
+      c.fill = { type: 'pattern', pattern: 'solid', fgColor: { argb: OSCURO } }
+      c.alignment = { horizontal: 'center', vertical: 'middle' }
+      c.border = bordes
+    })
+    headD.height = 22
+
+    const orden = [...comidas].sort((a, b) => a.fecha.localeCompare(b.fecha))
+    orden.forEach((c, i) => {
+      const r = wd.getRow(4 + i)
+      r.values = [fmtFecha(c.fecha), c.operario, c.sitio, c.montaje]
+      r.getCell(1).alignment = { horizontal: 'center' }
+      r.eachCell(cell => {
+        cell.border = bordes
+        if (i % 2) cell.fill = { type: 'pattern', pattern: 'solid', fgColor: { argb: ZEBRA } }
+      })
+    })
+    wd.autoFilter = 'A3:D3'
+
+    const buf = await wb.xlsx.writeBuffer()
+    const blob = new Blob([buf], { type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' })
+    const url = URL.createObjectURL(blob)
+    const a = document.createElement('a')
+    a.href = url
+    a.download = `Resumen_${desde || 'inicio'}_a_${hasta || 'hoy'}.xlsx`
+    document.body.appendChild(a)
+    a.click()
+    document.body.removeChild(a)
+    setTimeout(() => URL.revokeObjectURL(url), 5000)
+  }
+
   return (
     <div className="fade-in" style={{ height: '100%', overflow: 'auto', display: 'flex', flexDirection: 'column' }}>
       <Banner sub="Recuentos por sitio, montaje y operario" titulo="Resúmenes" icon="📊" count={totalComidas} countLabel="Comidas" />
@@ -103,8 +211,8 @@ export default function Resumenes() {
           </div>
         </div>
 
-        {/* Selector de agrupación */}
-        <div style={{ display: 'flex', gap: 10, flexWrap: 'wrap' }}>
+        {/* Selector de agrupación + exportar */}
+        <div style={{ display: 'flex', gap: 10, flexWrap: 'wrap', alignItems: 'center' }}>
           {GRUPOS.map(g => (
             <button key={g.id}
               className={agrupar === g.id ? 'btn btn-primary' : 'btn btn-secondary'}
@@ -112,6 +220,10 @@ export default function Resumenes() {
               {g.icon} {g.label}
             </button>
           ))}
+          <div style={{ flex: 1 }} />
+          <button className="btn btn-secondary" onClick={exportarExcel} disabled={!totalComidas}>
+            📥 Exportar Excel
+          </button>
         </div>
 
         {/* Tabla resumen */}
