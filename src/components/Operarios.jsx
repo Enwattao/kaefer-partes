@@ -82,6 +82,7 @@ export default function Operarios() {
                     {item.nombre}
                   </span>
                   <button className="btn btn-secondary btn-sm" onClick={() => empezarEdit(item)} title="Editar">✏️ Editar</button>
+                  <button className="btn btn-danger btn-sm" onClick={() => { if (confirm(`¿Borrar a ${item.nombre}?`)) eliminar(item.id) }} title="Borrar" style={{ padding: '0 10px' }}>🗑️</button>
                 </>
               )}
             </div>
