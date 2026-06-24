@@ -150,7 +150,7 @@ export default function NuevoVacaciones({ solicitudEditar, onTerminado }) {
               <Autocomplete
                 value={solicitante}
                 onChange={setSolicitante}
-                options={operarios}
+                opciones={operarios}
                 placeholder="Nombre del trabajador…"
               />
             </div>
