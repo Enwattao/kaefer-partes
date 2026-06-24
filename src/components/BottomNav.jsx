@@ -1,10 +1,10 @@
 const NAV = [
-  { id: 'nuevo', icon: '📝', label: 'Nuevo' },
+  { id: 'nuevo', icon: '📝', label: 'Parte' },
   { id: 'consultas', icon: '🔍', label: 'Consultas' },
   { id: 'resumenes', icon: '📊', label: 'Resumen' },
-  { id: 'operarios', icon: '👷', label: 'Operarios' },
-  { id: 'montajes', icon: '🏗️', label: 'Montajes' },
-  { id: 'sitios', icon: '🍽️', label: 'Sitios' },
+  { id: 'vacaciones', icon: '🏖️', label: 'Vacaciones' },
+  { id: 'consultas-vacaciones', icon: '📋', label: 'Solicitudes' },
+  { id: 'operarios', icon: '👷', label: 'Personal' },
   { id: 'ajustes', icon: '⚙️', label: 'Ajustes' },
 ]
 

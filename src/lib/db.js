@@ -51,6 +51,15 @@ export async function savePartes(data) {
   localStorage.setItem('partes', JSON.stringify(data))
 }
 
+export async function getVacaciones() {
+  if (isElectron) return window.api.getVacaciones ? window.api.getVacaciones() : JSON.parse(localStorage.getItem('vacaciones') || '[]')
+  return JSON.parse(localStorage.getItem('vacaciones') || '[]')
+}
+export async function saveVacaciones(data) {
+  if (isElectron && window.api.saveVacaciones) return window.api.saveVacaciones(data)
+  localStorage.setItem('vacaciones', JSON.stringify(data))
+}
+
 export function genId() {
   return Date.now().toString(36) + Math.random().toString(36).slice(2, 6)
 }
