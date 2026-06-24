@@ -9,8 +9,6 @@ import Montajes from './components/Montajes.jsx'
 import Sitios from './components/Sitios.jsx'
 import Resumenes from './components/Resumenes.jsx'
 import Ajustes from './components/Ajustes.jsx'
-import NuevoVacaciones from './components/NuevoVacaciones.jsx'
-import ConsultasVacaciones from './components/ConsultasVacaciones.jsx'
 
 function useMovil() {
   const [movil, setMovil] = useState(() => window.matchMedia('(max-width: 700px)').matches)
@@ -26,23 +24,16 @@ function useMovil() {
 export default function App() {
   const [pantalla, setPantalla] = useState('nuevo')
   const [parteEditar, setParteEditar] = useState(null)
-  const [solicitudEditar, setSolicitudEditar] = useState(null)
   const movil = useMovil()
 
   function navegar(id) {
     if (id === 'nuevo') setParteEditar(null)
-    if (id === 'vacaciones') setSolicitudEditar(null)
     setPantalla(id)
   }
 
   function editarParte(p) {
     setParteEditar(p)
     setPantalla('nuevo')
-  }
-
-  function editarSolicitud(s) {
-    setSolicitudEditar(s)
-    setPantalla('vacaciones')
   }
 
   return (
@@ -67,14 +58,6 @@ export default function App() {
           {pantalla === 'montajes' && <Montajes />}
           {pantalla === 'sitios' && <Sitios />}
           {pantalla === 'ajustes' && <Ajustes />}
-          {pantalla === 'vacaciones' && (
-            <NuevoVacaciones
-              key={solicitudEditar ? solicitudEditar.id : 'nueva-vacacion'}
-              solicitudEditar={solicitudEditar}
-              onTerminado={() => { setSolicitudEditar(null); setPantalla('consultas-vacaciones') }}
-            />
-          )}
-          {pantalla === 'consultas-vacaciones' && <ConsultasVacaciones onEditar={editarSolicitud} />}
         </main>
       </div>
       {movil && <BottomNav pantalla={pantalla} setPantalla={navegar} />}
