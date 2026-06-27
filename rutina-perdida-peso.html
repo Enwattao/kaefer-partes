@@ -1,0 +1,857 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Rutina de Pesas – Pérdida de Peso</title>
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap');
+
+    :root {
+      --orange: #FF6B35;
+      --orange-dark: #E55A2B;
+      --green: #2ECC71;
+      --green-dark: #27AE60;
+      --blue: #3498DB;
+      --purple: #9B59B6;
+      --dark: #0F0F1A;
+      --dark2: #1A1A2E;
+      --card: #1E1E32;
+      --card2: #252540;
+      --text: #F0F0F8;
+      --text2: #A0A0C0;
+      --border: rgba(255,255,255,0.08);
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: 'Inter', system-ui, sans-serif;
+      background: var(--dark);
+      color: var(--text);
+      min-height: 100vh;
+    }
+
+    /* HERO */
+    .hero {
+      background: linear-gradient(135deg, #0F0F1A 0%, #1A0A2E 50%, #0F1A0A 100%);
+      padding: 60px 24px 50px;
+      text-align: center;
+      position: relative;
+      overflow: hidden;
+    }
+    .hero::before {
+      content: '';
+      position: absolute;
+      top: -80px; left: 50%; transform: translateX(-50%);
+      width: 600px; height: 600px;
+      background: radial-gradient(circle, rgba(255,107,53,0.15) 0%, transparent 70%);
+      pointer-events: none;
+    }
+    .hero-badge {
+      display: inline-flex; align-items: center; gap: 8px;
+      background: rgba(255,107,53,0.15);
+      border: 1px solid rgba(255,107,53,0.3);
+      border-radius: 50px;
+      padding: 6px 16px;
+      font-size: 12px; font-weight: 700; letter-spacing: .08em;
+      color: var(--orange); text-transform: uppercase;
+      margin-bottom: 20px;
+    }
+    .hero h1 {
+      font-size: clamp(32px, 6vw, 62px);
+      font-weight: 900;
+      line-height: 1.05;
+      margin-bottom: 16px;
+      background: linear-gradient(135deg, #FF6B35, #FFD700, #2ECC71);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+    .hero p {
+      font-size: 16px; color: var(--text2); max-width: 540px; margin: 0 auto 32px; line-height: 1.6;
+    }
+    .hero-stats {
+      display: flex; justify-content: center; gap: 32px; flex-wrap: wrap;
+    }
+    .stat {
+      text-align: center;
+    }
+    .stat-num {
+      font-size: 28px; font-weight: 900;
+      background: linear-gradient(135deg, #FF6B35, #FFD700);
+      -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text;
+    }
+    .stat-label { font-size: 11px; color: var(--text2); text-transform: uppercase; letter-spacing: .06em; margin-top: 2px; }
+
+    /* LAYOUT */
+    .container { max-width: 1100px; margin: 0 auto; padding: 0 20px; }
+    .section { padding: 48px 0; }
+    .section-title {
+      font-size: 22px; font-weight: 800; margin-bottom: 6px;
+      display: flex; align-items: center; gap: 10px;
+    }
+    .section-sub { font-size: 13.5px; color: var(--text2); margin-bottom: 28px; }
+
+    /* DIA TABS */
+    .days-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 20px; }
+
+    .day-card {
+      background: var(--card);
+      border-radius: 20px;
+      border: 1px solid var(--border);
+      overflow: hidden;
+      transition: transform .2s, box-shadow .2s;
+    }
+    .day-card:hover { transform: translateY(-4px); box-shadow: 0 20px 60px rgba(0,0,0,.4); }
+
+    .day-header {
+      padding: 22px 24px 18px;
+      display: flex; align-items: center; gap: 14px;
+    }
+    .day-number {
+      width: 50px; height: 50px; border-radius: 14px;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 22px; font-weight: 900; flex-shrink: 0;
+    }
+    .day1 .day-number { background: linear-gradient(135deg, #FF6B35, #E55A2B); }
+    .day2 .day-number { background: linear-gradient(135deg, #3498DB, #2980B9); }
+    .day3 .day-number { background: linear-gradient(135deg, #2ECC71, #27AE60); }
+
+    .day-title { font-size: 17px; font-weight: 800; }
+    .day-subtitle { font-size: 12px; color: var(--text2); margin-top: 2px; }
+
+    .day-meta {
+      padding: 0 24px 16px;
+      display: flex; gap: 10px; flex-wrap: wrap;
+    }
+    .meta-tag {
+      padding: 4px 12px; border-radius: 20px; font-size: 11.5px; font-weight: 600;
+    }
+    .tag-time { background: rgba(255,107,53,0.15); color: #FF6B35; }
+    .tag-sets { background: rgba(255,215,0,0.12); color: #FFD700; }
+    .tag-focus { background: rgba(46,204,113,0.12); color: #2ECC71; }
+
+    /* EJERCICIOS */
+    .exercises-list { padding: 0 14px 20px; display: flex; flex-direction: column; gap: 10px; }
+
+    .exercise-item {
+      background: var(--card2);
+      border-radius: 14px;
+      display: flex; align-items: center; gap: 14px;
+      padding: 12px 14px;
+      border: 1px solid var(--border);
+      transition: border-color .2s, background .2s;
+      cursor: default;
+    }
+    .exercise-item:hover { border-color: rgba(255,107,53,0.3); background: rgba(255,107,53,0.04); }
+
+    .ex-img {
+      width: 68px; height: 68px; border-radius: 12px; flex-shrink: 0;
+      overflow: hidden; background: #0F0F1A;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 36px;
+      position: relative;
+    }
+    .ex-img img {
+      width: 100%; height: 100%; object-fit: cover; border-radius: 12px;
+    }
+
+    .ex-info { flex: 1; min-width: 0; }
+    .ex-name { font-size: 13.5px; font-weight: 700; margin-bottom: 3px; }
+    .ex-detail { font-size: 11.5px; color: var(--text2); margin-bottom: 5px; }
+    .ex-badges { display: flex; gap: 6px; flex-wrap: wrap; }
+    .ex-badge {
+      padding: 2px 9px; border-radius: 20px; font-size: 10.5px; font-weight: 600;
+    }
+    .b-series { background: rgba(255,107,53,0.15); color: #FF6B35; }
+    .b-reps  { background: rgba(52,152,219,0.15); color: #3498DB; }
+    .b-rest  { background: rgba(155,89,182,0.15); color: #9B59B6; }
+    .b-peso  { background: rgba(255,215,0,0.12); color: #FFD700; }
+
+    /* CALENTAMIENTO / CARDIO */
+    .warmup-box {
+      margin: 0 14px 18px;
+      background: rgba(255,215,0,0.06);
+      border: 1px solid rgba(255,215,0,0.18);
+      border-radius: 12px;
+      padding: 13px 16px;
+    }
+    .warmup-title { font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: .08em; color: #FFD700; margin-bottom: 6px; }
+    .warmup-text { font-size: 12.5px; color: var(--text2); line-height: 1.5; }
+
+    /* SUPLEMENTOS */
+    .supps-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 16px; }
+
+    .supp-card {
+      background: var(--card);
+      border-radius: 18px;
+      border: 1px solid var(--border);
+      padding: 22px 20px;
+      transition: transform .2s, border-color .2s;
+    }
+    .supp-card:hover { transform: translateY(-3px); border-color: rgba(255,255,255,0.15); }
+
+    .supp-icon { font-size: 36px; margin-bottom: 12px; }
+    .supp-name { font-size: 15px; font-weight: 800; margin-bottom: 4px; }
+    .supp-when { font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: .06em; margin-bottom: 8px; }
+    .supp-dose { font-size: 13px; color: var(--text2); margin-bottom: 10px; line-height: 1.5; }
+    .supp-benefit {
+      font-size: 11.5px; padding: 6px 12px; border-radius: 8px;
+      font-weight: 600;
+    }
+    .s1 .supp-when { color: #FF6B35; }
+    .s1 .supp-benefit { background: rgba(255,107,53,0.12); color: #FF6B35; }
+    .s2 .supp-when { color: #3498DB; }
+    .s2 .supp-benefit { background: rgba(52,152,219,0.12); color: #3498DB; }
+    .s3 .supp-when { color: #2ECC71; }
+    .s3 .supp-benefit { background: rgba(46,204,113,0.12); color: #2ECC71; }
+    .s4 .supp-when { color: #9B59B6; }
+    .s4 .supp-benefit { background: rgba(155,89,182,0.12); color: #9B59B6; }
+    .s5 .supp-when { color: #FFD700; }
+    .s5 .supp-benefit { background: rgba(255,215,0,0.10); color: #FFD700; }
+
+    /* PLAN SEMANAL */
+    .week-grid { display: grid; grid-template-columns: repeat(7, 1fr); gap: 8px; }
+    .week-day {
+      background: var(--card);
+      border-radius: 12px;
+      border: 1px solid var(--border);
+      padding: 14px 8px;
+      text-align: center;
+    }
+    .week-day.active-day { border-color: rgba(255,107,53,0.4); background: rgba(255,107,53,0.07); }
+    .week-day.rest-day { opacity: 0.55; }
+    .wd-name { font-size: 10px; font-weight: 700; text-transform: uppercase; letter-spacing: .06em; color: var(--text2); margin-bottom: 6px; }
+    .wd-label { font-size: 11px; font-weight: 600; }
+    .wd-icon { font-size: 20px; margin-bottom: 4px; }
+
+    /* CONSEJOS */
+    .tips-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 14px; }
+    .tip-card {
+      background: var(--card);
+      border-radius: 14px;
+      border: 1px solid var(--border);
+      padding: 18px 16px;
+      display: flex; gap: 12px; align-items: flex-start;
+    }
+    .tip-icon { font-size: 24px; flex-shrink: 0; }
+    .tip-title { font-size: 13px; font-weight: 700; margin-bottom: 4px; }
+    .tip-text { font-size: 12px; color: var(--text2); line-height: 1.5; }
+
+    /* FOOTER */
+    footer {
+      background: var(--dark2);
+      border-top: 1px solid var(--border);
+      padding: 28px 24px;
+      text-align: center;
+    }
+    .footer-warn {
+      display: inline-flex; align-items: center; gap: 8px;
+      background: rgba(255,215,0,0.08); border: 1px solid rgba(255,215,0,0.2);
+      border-radius: 10px; padding: 10px 18px;
+      font-size: 12px; color: #FFD700; margin-bottom: 14px;
+    }
+    footer p { font-size: 12px; color: var(--text2); }
+
+    @media (max-width: 600px) {
+      .hero { padding: 40px 16px 36px; }
+      .week-grid { grid-template-columns: repeat(4, 1fr); }
+      .days-grid { grid-template-columns: 1fr; }
+    }
+  </style>
+</head>
+<body>
+
+<!-- ====== HERO ====== -->
+<div class="hero">
+  <div class="hero-badge">🔥 Personal Trainer · Programa Profesional</div>
+  <h1>Rutina de Pesas<br/>Pérdida de Peso</h1>
+  <p>Programa de 3 días de entrenamiento con pesas diseñado para maximizar la quema de grasa y preservar músculo.</p>
+  <div class="hero-stats">
+    <div class="stat"><div class="stat-num">3</div><div class="stat-label">Días / semana</div></div>
+    <div class="stat"><div class="stat-num">45–60</div><div class="stat-label">Min por sesión</div></div>
+    <div class="stat"><div class="stat-num">500+</div><div class="stat-label">Kcal quemadas</div></div>
+    <div class="stat"><div class="stat-num">12</div><div class="stat-label">Semanas programa</div></div>
+  </div>
+</div>
+
+<!-- ====== PLAN SEMANAL ====== -->
+<div class="container">
+  <div class="section">
+    <div class="section-title">📅 Distribución Semanal</div>
+    <div class="section-sub">Alterna entrenamiento y descanso para máxima recuperación</div>
+    <div class="week-grid">
+      <div class="week-day active-day">
+        <div class="wd-icon">🔥</div>
+        <div class="wd-name">Lunes</div>
+        <div class="wd-label" style="color:#FF6B35;">DÍA 1</div>
+      </div>
+      <div class="week-day rest-day">
+        <div class="wd-icon">😴</div>
+        <div class="wd-name">Martes</div>
+        <div class="wd-label" style="color:#A0A0C0;">Descanso</div>
+      </div>
+      <div class="week-day active-day">
+        <div class="wd-icon">💪</div>
+        <div class="wd-name">Miércoles</div>
+        <div class="wd-label" style="color:#3498DB;">DÍA 2</div>
+      </div>
+      <div class="week-day rest-day">
+        <div class="wd-icon">😴</div>
+        <div class="wd-name">Jueves</div>
+        <div class="wd-label" style="color:#A0A0C0;">Descanso</div>
+      </div>
+      <div class="week-day active-day">
+        <div class="wd-icon">⚡</div>
+        <div class="wd-name">Viernes</div>
+        <div class="wd-label" style="color:#2ECC71;">DÍA 3</div>
+      </div>
+      <div class="week-day rest-day">
+        <div class="wd-icon">🚶</div>
+        <div class="wd-name">Sábado</div>
+        <div class="wd-label" style="color:#A0A0C0;">Cardio ligero</div>
+      </div>
+      <div class="week-day rest-day">
+        <div class="wd-icon">😴</div>
+        <div class="wd-name">Domingo</div>
+        <div class="wd-label" style="color:#A0A0C0;">Descanso</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ====== 3 DÍAS ====== -->
+  <div class="section">
+    <div class="section-title">🏋️ Los 3 Días de Entrenamiento</div>
+    <div class="section-sub">Cada sesión trabaja grupos musculares complementarios con énfasis en circuito metabólico</div>
+
+    <div class="days-grid">
+
+      <!-- DÍA 1: TREN SUPERIOR -->
+      <div class="day-card day1">
+        <div class="day-header">
+          <div class="day-number">1</div>
+          <div>
+            <div class="day-title">Tren Superior</div>
+            <div class="day-subtitle">Pecho · Espalda · Hombros · Tríceps</div>
+          </div>
+        </div>
+        <div class="day-meta">
+          <span class="meta-tag tag-time">⏱ 50 min</span>
+          <span class="meta-tag tag-sets">4 series</span>
+          <span class="meta-tag tag-focus">Fuerza + Cardio</span>
+        </div>
+
+        <div class="warmup-box">
+          <div class="warmup-title">⚡ Calentamiento (5 min)</div>
+          <div class="warmup-text">Jumping jacks 2 min · Rotación de hombros · Brazos en círculo · 10 push-ups lentos</div>
+        </div>
+
+        <div class="exercises-list">
+
+          <div class="exercise-item">
+            <div class="ex-img">
+              <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/3/3b/Push_up_1.jpg/320px-Push_up_1.jpg"
+                   alt="Press de banca"
+                   onerror="this.parentElement.innerHTML='🏋️'"/>
+            </div>
+            <div class="ex-info">
+              <div class="ex-name">Press de Banca con Barra</div>
+              <div class="ex-detail">Pecho mayor · Tríceps · Deltoides anterior</div>
+              <div class="ex-badges">
+                <span class="ex-badge b-series">4 series</span>
+                <span class="ex-badge b-reps">10–12 reps</span>
+                <span class="ex-badge b-rest">60s descanso</span>
+              </div>
+            </div>
+          </div>
+
+          <div class="exercise-item">
+            <div class="ex-img">
+              <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/b/b5/Bent-over_row_-_Everkinetic.svg/320px-Bent-over_row_-_Everkinetic.svg.png"
+                   alt="Remo con barra"
+                   onerror="this.parentElement.innerHTML='🏋️'"/>
+            </div>
+            <div class="ex-info">
+              <div class="ex-name">Remo con Barra</div>
+              <div class="ex-detail">Espalda media · Bíceps · Romboides</div>
+              <div class="ex-badges">
+                <span class="ex-badge b-series">4 series</span>
+                <span class="ex-badge b-reps">10–12 reps</span>
+                <span class="ex-badge b-rest">60s descanso</span>
+              </div>
+            </div>
+          </div>
+
+          <div class="exercise-item">
+            <div class="ex-img">
+              <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/9/97/Shoulder_press_-_Everkinetic.svg/320px-Shoulder_press_-_Everkinetic.svg.png"
+                   alt="Press militar"
+                   onerror="this.parentElement.innerHTML='💪'"/>
+            </div>
+            <div class="ex-info">
+              <div class="ex-name">Press Militar con Mancuernas</div>
+              <div class="ex-detail">Deltoides · Tríceps · Trapecio superior</div>
+              <div class="ex-badges">
+                <span class="ex-badge b-series">3 series</span>
+                <span class="ex-badge b-reps">12 reps</span>
+                <span class="ex-badge b-rest">60s descanso</span>
+              </div>
+            </div>
+          </div>
+
+          <div class="exercise-item">
+            <div class="ex-img">
+              <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/7/75/Dumbbell_lateral_raise_-_Everkinetic.svg/320px-Dumbbell_lateral_raise_-_Everkinetic.svg.png"
+                   alt="Elevaciones laterales"
+                   onerror="this.parentElement.innerHTML='🏋️'"/>
+            </div>
+            <div class="ex-info">
+              <div class="ex-name">Elevaciones Laterales</div>
+              <div class="ex-detail">Deltoides lateral · Trapecio</div>
+              <div class="ex-badges">
+                <span class="ex-badge b-series">3 series</span>
+                <span class="ex-badge b-reps">15 reps</span>
+                <span class="ex-badge b-rest">45s descanso</span>
+              </div>
+            </div>
+          </div>
+
+          <div class="exercise-item">
+            <div class="ex-img">
+              <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/e/eb/Skull_crusher_-_Everkinetic.svg/320px-Skull_crusher_-_Everkinetic.svg.png"
+                   alt="Extensión de tríceps"
+                   onerror="this.parentElement.innerHTML='💪'"/>
+            </div>
+            <div class="ex-info">
+              <div class="ex-name">Extensión de Tríceps (Polea Alta)</div>
+              <div class="ex-detail">Tríceps braquial (3 cabezas)</div>
+              <div class="ex-badges">
+                <span class="ex-badge b-series">3 series</span>
+                <span class="ex-badge b-reps">15 reps</span>
+                <span class="ex-badge b-rest">45s descanso</span>
+              </div>
+            </div>
+          </div>
+
+          <div class="exercise-item">
+            <div class="ex-img" style="background:rgba(255,107,53,0.12);">🏃</div>
+            <div class="ex-info">
+              <div class="ex-name">HIIT Finisher – Battle Ropes / Burpees</div>
+              <div class="ex-detail">Cardio metabólico · Quema de grasa post-entreno</div>
+              <div class="ex-badges">
+                <span class="ex-badge b-series">4 rounds</span>
+                <span class="ex-badge b-reps">30s trabajo</span>
+                <span class="ex-badge b-rest">15s pausa</span>
+              </div>
+            </div>
+          </div>
+
+        </div>
+      </div>
+
+      <!-- DÍA 2: TREN INFERIOR -->
+      <div class="day-card day2">
+        <div class="day-header">
+          <div class="day-number">2</div>
+          <div>
+            <div class="day-title">Tren Inferior</div>
+            <div class="day-subtitle">Cuádriceps · Isquios · Glúteos · Gemelos</div>
+          </div>
+        </div>
+        <div class="day-meta">
+          <span class="meta-tag tag-time">⏱ 55 min</span>
+          <span class="meta-tag tag-sets">4 series</span>
+          <span class="meta-tag tag-focus">Potencia + Metabólico</span>
+        </div>
+
+        <div class="warmup-box">
+          <div class="warmup-title">⚡ Calentamiento (5 min)</div>
+          <div class="warmup-text">Trote suave 3 min · Sentadillas de peso corporal 15 reps · Estocadas dinámicas · Movilidad de cadera</div>
+        </div>
+
+        <div class="exercises-list">
+
+          <div class="exercise-item">
+            <div class="ex-img">
+              <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/0/04/Squats_-_Everkinetic.svg/320px-Squats_-_Everkinetic.svg.png"
+                   alt="Sentadilla con barra"
+                   onerror="this.parentElement.innerHTML='🏋️'"/>
+            </div>
+            <div class="ex-info">
+              <div class="ex-name">Sentadilla con Barra</div>
+              <div class="ex-detail">Cuádriceps · Glúteos · Core · Isquios</div>
+              <div class="ex-badges">
+                <span class="ex-badge b-series">4 series</span>
+                <span class="ex-badge b-reps">8–10 reps</span>
+                <span class="ex-badge b-rest">90s descanso</span>
+                <span class="ex-badge b-peso">Peso moderado</span>
+              </div>
+            </div>
+          </div>
+
+          <div class="exercise-item">
+            <div class="ex-img">
+              <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/3/30/Lunges_-_Everkinetic.svg/320px-Lunges_-_Everkinetic.svg.png"
+                   alt="Estocadas"
+                   onerror="this.parentElement.innerHTML='🦵'"/>
+            </div>
+            <div class="ex-info">
+              <div class="ex-name">Estocadas Caminando con Mancuernas</div>
+              <div class="ex-detail">Cuádriceps · Glúteos · Equilibrio</div>
+              <div class="ex-badges">
+                <span class="ex-badge b-series">3 series</span>
+                <span class="ex-badge b-reps">12 cada pierna</span>
+                <span class="ex-badge b-rest">60s descanso</span>
+              </div>
+            </div>
+          </div>
+
+          <div class="exercise-item">
+            <div class="ex-img">
+              <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/5/52/Romanian_deadlift_-_Everkinetic.svg/320px-Romanian_deadlift_-_Everkinetic.svg.png"
+                   alt="Peso muerto rumano"
+                   onerror="this.parentElement.innerHTML='🏋️'"/>
+            </div>
+            <div class="ex-info">
+              <div class="ex-name">Peso Muerto Rumano</div>
+              <div class="ex-detail">Isquiotibiales · Glúteos · Columna baja</div>
+              <div class="ex-badges">
+                <span class="ex-badge b-series">4 series</span>
+                <span class="ex-badge b-reps">10–12 reps</span>
+                <span class="ex-badge b-rest">75s descanso</span>
+              </div>
+            </div>
+          </div>
+
+          <div class="exercise-item">
+            <div class="ex-img">
+              <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/d/df/Glute_bridge_-_Everkinetic.svg/320px-Glute_bridge_-_Everkinetic.svg.png"
+                   alt="Hip thrust"
+                   onerror="this.parentElement.innerHTML='🍑'"/>
+            </div>
+            <div class="ex-info">
+              <div class="ex-name">Hip Thrust con Barra</div>
+              <div class="ex-detail">Glúteo mayor · Isquios · Core</div>
+              <div class="ex-badges">
+                <span class="ex-badge b-series">4 series</span>
+                <span class="ex-badge b-reps">12–15 reps</span>
+                <span class="ex-badge b-rest">60s descanso</span>
+              </div>
+            </div>
+          </div>
+
+          <div class="exercise-item">
+            <div class="ex-img">
+              <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/9/94/Calf_raises_-_Everkinetic.svg/320px-Calf_raises_-_Everkinetic.svg.png"
+                   alt="Elevaciones de talón"
+                   onerror="this.parentElement.innerHTML='🦵'"/>
+            </div>
+            <div class="ex-info">
+              <div class="ex-name">Elevaciones de Talón (Gemelos)</div>
+              <div class="ex-detail">Gastrocnemio · Sóleo</div>
+              <div class="ex-badges">
+                <span class="ex-badge b-series">3 series</span>
+                <span class="ex-badge b-reps">20 reps</span>
+                <span class="ex-badge b-rest">45s descanso</span>
+              </div>
+            </div>
+          </div>
+
+          <div class="exercise-item">
+            <div class="ex-img" style="background:rgba(52,152,219,0.12);">🚴</div>
+            <div class="ex-info">
+              <div class="ex-name">HIIT Finisher – Sprints en Bicicleta / Box Jumps</div>
+              <div class="ex-detail">Potencia anaeróbica · EPOC elevado</div>
+              <div class="ex-badges">
+                <span class="ex-badge b-series">5 rounds</span>
+                <span class="ex-badge b-reps">20s máximo</span>
+                <span class="ex-badge b-rest">40s pausa</span>
+              </div>
+            </div>
+          </div>
+
+        </div>
+      </div>
+
+      <!-- DÍA 3: FULL BODY METABÓLICO -->
+      <div class="day-card day3">
+        <div class="day-header">
+          <div class="day-number">3</div>
+          <div>
+            <div class="day-title">Full Body Metabólico</div>
+            <div class="day-subtitle">Cuerpo completo · Circuito · Máxima quema</div>
+          </div>
+        </div>
+        <div class="day-meta">
+          <span class="meta-tag tag-time">⏱ 50 min</span>
+          <span class="meta-tag tag-sets">Circuito</span>
+          <span class="meta-tag tag-focus">Quema Grasa MAX</span>
+        </div>
+
+        <div class="warmup-box">
+          <div class="warmup-title">⚡ Calentamiento (5 min)</div>
+          <div class="warmup-text">Saltos de tijera 2 min · Mountain climbers 1 min · Movilidad completa de cadera y hombros</div>
+        </div>
+
+        <div class="exercises-list">
+
+          <div class="exercise-item">
+            <div class="ex-img">
+              <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/4/44/Deadlift_-_Everkinetic.svg/320px-Deadlift_-_Everkinetic.svg.png"
+                   alt="Peso muerto"
+                   onerror="this.parentElement.innerHTML='🏋️'"/>
+            </div>
+            <div class="ex-info">
+              <div class="ex-name">Peso Muerto Convencional</div>
+              <div class="ex-detail">Full body · Cadena posterior completa · Mayor quema calórica</div>
+              <div class="ex-badges">
+                <span class="ex-badge b-series">4 series</span>
+                <span class="ex-badge b-reps">8 reps</span>
+                <span class="ex-badge b-rest">90s descanso</span>
+              </div>
+            </div>
+          </div>
+
+          <div class="exercise-item">
+            <div class="ex-img">
+              <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/c/c1/Goblet_squat_-_Everkinetic.svg/320px-Goblet_squat_-_Everkinetic.svg.png"
+                   alt="Goblet squat"
+                   onerror="this.parentElement.innerHTML='🏋️'"/>
+            </div>
+            <div class="ex-info">
+              <div class="ex-name">Goblet Squat con Pesa Rusa</div>
+              <div class="ex-detail">Cuádriceps · Glúteos · Core · Movilidad</div>
+              <div class="ex-badges">
+                <span class="ex-badge b-series">3 series</span>
+                <span class="ex-badge b-reps">15 reps</span>
+                <span class="ex-badge b-rest">60s descanso</span>
+              </div>
+            </div>
+          </div>
+
+          <div class="exercise-item">
+            <div class="ex-img">
+              <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/b/bd/Dumbbell_row_-_Everkinetic.svg/320px-Dumbbell_row_-_Everkinetic.svg.png"
+                   alt="Remo a una mano"
+                   onerror="this.parentElement.innerHTML='💪'"/>
+            </div>
+            <div class="ex-info">
+              <div class="ex-name">Remo con Mancuerna a Una Mano</div>
+              <div class="ex-detail">Espalda · Bíceps · Core estabilizador</div>
+              <div class="ex-badges">
+                <span class="ex-badge b-series">3 series</span>
+                <span class="ex-badge b-reps">12 cada lado</span>
+                <span class="ex-badge b-rest">60s descanso</span>
+              </div>
+            </div>
+          </div>
+
+          <div class="exercise-item">
+            <div class="ex-img">
+              <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/f/f4/Push-up_-_Everkinetic.svg/320px-Push-up_-_Everkinetic.svg.png"
+                   alt="Flexiones"
+                   onerror="this.parentElement.innerHTML='🤸'"/>
+            </div>
+            <div class="ex-info">
+              <div class="ex-name">Flexiones (Push-ups) Explosivas</div>
+              <div class="ex-detail">Pecho · Tríceps · Core · Potencia</div>
+              <div class="ex-badges">
+                <span class="ex-badge b-series">3 series</span>
+                <span class="ex-badge b-reps">Al fallo</span>
+                <span class="ex-badge b-rest">60s descanso</span>
+              </div>
+            </div>
+          </div>
+
+          <div class="exercise-item">
+            <div class="ex-img">
+              <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/2/2a/Plank_-_Everkinetic.svg/320px-Plank_-_Everkinetic.svg.png"
+                   alt="Plancha"
+                   onerror="this.parentElement.innerHTML='🧘'"/>
+            </div>
+            <div class="ex-info">
+              <div class="ex-name">Plancha + Mountain Climbers</div>
+              <div class="ex-detail">Core completo · Resistencia · Cardio</div>
+              <div class="ex-badges">
+                <span class="ex-badge b-series">3 series</span>
+                <span class="ex-badge b-reps">40s plancha + 20s MC</span>
+                <span class="ex-badge b-rest">45s descanso</span>
+              </div>
+            </div>
+          </div>
+
+          <div class="exercise-item">
+            <div class="ex-img" style="background:rgba(46,204,113,0.12);">⚡</div>
+            <div class="ex-info">
+              <div class="ex-name">HIIT Finisher – Kettlebell Swings / Thrusters</div>
+              <div class="ex-detail">Máxima quema calórica · Elevación del metabolismo</div>
+              <div class="ex-badges">
+                <span class="ex-badge b-series">4 rounds</span>
+                <span class="ex-badge b-reps">15 swings + 10 thrusters</span>
+                <span class="ex-badge b-rest">30s pausa</span>
+              </div>
+            </div>
+          </div>
+
+        </div>
+      </div>
+
+    </div><!-- /days-grid -->
+  </div>
+
+  <!-- ====== SUPLEMENTOS ====== -->
+  <div class="section">
+    <div class="section-title">💊 Suplementos Recomendados</div>
+    <div class="section-sub">Stack básico y efectivo para pérdida de grasa y rendimiento óptimo</div>
+
+    <div class="supps-grid">
+
+      <div class="supp-card s1">
+        <div class="supp-icon">🥛</div>
+        <div class="supp-name">Proteína Whey</div>
+        <div class="supp-when">Post-Entreno · Antes de dormir</div>
+        <div class="supp-dose">25–30g en 250ml de agua o leche desnatada. 1–2 tomas diarias según déficit calórico.</div>
+        <div class="supp-benefit">Preserva masa muscular en déficit calórico</div>
+      </div>
+
+      <div class="supp-card s2">
+        <div class="supp-icon">⚡</div>
+        <div class="supp-name">Creatina Monohidrato</div>
+        <div class="supp-when">Todos los días · Cualquier momento</div>
+        <div class="supp-dose">3–5g/día. No necesita carga. Tomar con agua, preferentemente post-entreno los días de gym.</div>
+        <div class="supp-benefit">Más fuerza y rendimiento en cada serie</div>
+      </div>
+
+      <div class="supp-card s3">
+        <div class="supp-icon">🔋</div>
+        <div class="supp-name">Pre-Entreno (Cafeína)</div>
+        <div class="supp-when">30 min antes del entreno</div>
+        <div class="supp-dose">200mg cafeína (o 1 taza de café negro). Alternativa natural y más barata. No exceder 400mg/día.</div>
+        <div class="supp-benefit">Aumenta oxidación de grasa durante el entreno</div>
+      </div>
+
+      <div class="supp-card s4">
+        <div class="supp-icon">🐟</div>
+        <div class="supp-name">Omega-3 (Fish Oil)</div>
+        <div class="supp-when">Con las comidas principales</div>
+        <div class="supp-dose">2–3g EPA+DHA/día. Busca concentrado con mínimo 60% de EPA+DHA por cápsula.</div>
+        <div class="supp-benefit">Reduce inflamación y mejora sensibilidad a insulina</div>
+      </div>
+
+      <div class="supp-card s5">
+        <div class="supp-icon">🌙</div>
+        <div class="supp-name">Vitamina D3 + Magnesio</div>
+        <div class="supp-when">Con la cena · Antes de dormir</div>
+        <div class="supp-dose">D3: 2000–4000 UI/día · Magnesio (glicinato): 300–400mg/noche. Mejoran el sueño reparador.</div>
+        <div class="supp-benefit">Sueño y recuperación óptimos · Testosterona natural</div>
+      </div>
+
+    </div>
+
+    <!-- Tabla timing -->
+    <div style="margin-top:24px; background: var(--card); border-radius:16px; border: 1px solid var(--border); overflow:hidden;">
+      <div style="padding:18px 22px 14px; border-bottom:1px solid var(--border); font-size:14px; font-weight:800; display:flex; align-items:center; gap:8px;">
+        ⏰ Timing de Suplementos – Día de Entreno
+      </div>
+      <div style="overflow-x:auto;">
+        <table style="width:100%; border-collapse:collapse; background:transparent;">
+          <thead>
+            <tr>
+              <th style="text-align:left; padding:11px 18px; background:rgba(255,255,255,0.04); color:var(--text2); font-size:11px; text-transform:uppercase; letter-spacing:.06em;">Momento</th>
+              <th style="text-align:left; padding:11px 18px; background:rgba(255,255,255,0.04); color:var(--text2); font-size:11px; text-transform:uppercase; letter-spacing:.06em;">Suplemento</th>
+              <th style="text-align:left; padding:11px 18px; background:rgba(255,255,255,0.04); color:var(--text2); font-size:11px; text-transform:uppercase; letter-spacing:.06em;">Dosis</th>
+              <th style="text-align:left; padding:11px 18px; background:rgba(255,255,255,0.04); color:var(--text2); font-size:11px; text-transform:uppercase; letter-spacing:.06em;">Con qué tomarlo</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr style="border-top:1px solid var(--border);">
+              <td style="padding:11px 18px; font-size:13px; color:#FF6B35; font-weight:700;">Desayuno</td>
+              <td style="padding:11px 18px; font-size:13px; color:var(--text);">Omega-3 · Vitamina D3</td>
+              <td style="padding:11px 18px; font-size:13px; color:var(--text2);">2g · 2000 UI</td>
+              <td style="padding:11px 18px; font-size:13px; color:var(--text2);">Con comida grasa</td>
+            </tr>
+            <tr style="border-top:1px solid var(--border);">
+              <td style="padding:11px 18px; font-size:13px; color:#FFD700; font-weight:700;">Pre-Entreno (−30 min)</td>
+              <td style="padding:11px 18px; font-size:13px; color:var(--text);">Cafeína / Pre-workout</td>
+              <td style="padding:11px 18px; font-size:13px; color:var(--text2);">200mg</td>
+              <td style="padding:11px 18px; font-size:13px; color:var(--text2);">En ayunas o ligero</td>
+            </tr>
+            <tr style="border-top:1px solid var(--border);">
+              <td style="padding:11px 18px; font-size:13px; color:#2ECC71; font-weight:700;">Post-Entreno (−30 min)</td>
+              <td style="padding:11px 18px; font-size:13px; color:var(--text);">Whey Protein · Creatina</td>
+              <td style="padding:11px 18px; font-size:13px; color:var(--text2);">25–30g · 5g</td>
+              <td style="padding:11px 18px; font-size:13px; color:var(--text2);">Agua o leche desnatada</td>
+            </tr>
+            <tr style="border-top:1px solid var(--border);">
+              <td style="padding:11px 18px; font-size:13px; color:#9B59B6; font-weight:700;">Cena / Antes de dormir</td>
+              <td style="padding:11px 18px; font-size:13px; color:var(--text);">Magnesio · (Omega-3 2ª dosis)</td>
+              <td style="padding:11px 18px; font-size:13px; color:var(--text2);">300mg · 1g</td>
+              <td style="padding:11px 18px; font-size:13px; color:var(--text2);">Con la cena</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+
+  <!-- ====== CONSEJOS CLAVE ====== -->
+  <div class="section">
+    <div class="section-title">💡 Consejos Clave para Máxima Pérdida de Grasa</div>
+    <div class="section-sub">Lo que marca la diferencia entre resultados mediocres y transformación real</div>
+    <div class="tips-grid">
+      <div class="tip-card">
+        <div class="tip-icon">🍽️</div>
+        <div>
+          <div class="tip-title">Déficit Calórico Moderado</div>
+          <div class="tip-text">Apunta a −300/−500 kcal/día de déficit. Más agresivo destruye músculo y baja el metabolismo.</div>
+        </div>
+      </div>
+      <div class="tip-card">
+        <div class="tip-icon">🥩</div>
+        <div>
+          <div class="tip-title">Alta Proteína</div>
+          <div class="tip-text">2–2.2g de proteína por kg de peso corporal. La proteína sacia y protege el músculo en déficit.</div>
+        </div>
+      </div>
+      <div class="tip-card">
+        <div class="tip-icon">💧</div>
+        <div>
+          <div class="tip-title">Hidratación</div>
+          <div class="tip-text">Mínimo 3 litros de agua al día. La deshidratación reduce fuerza y aumenta el apetito innecesariamente.</div>
+        </div>
+      </div>
+      <div class="tip-card">
+        <div class="tip-icon">😴</div>
+        <div>
+          <div class="tip-title">Sueño 7–9h</div>
+          <div class="tip-text">Dormir mal eleva el cortisol y grelina (hambre), arruina la recuperación y frena la pérdida de grasa.</div>
+        </div>
+      </div>
+      <div class="tip-card">
+        <div class="tip-icon">📈</div>
+        <div>
+          <div class="tip-title">Progresión de Cargas</div>
+          <div class="tip-text">Intenta añadir 1–2.5kg cada 1–2 semanas. La sobrecarga progresiva mantiene el músculo mientras pierdes grasa.</div>
+        </div>
+      </div>
+      <div class="tip-card">
+        <div class="tip-icon">🚶</div>
+        <div>
+          <div class="tip-title">NEAT – Camina más</div>
+          <div class="tip-text">8.000–12.000 pasos diarios fuera del gym. El NEAT puede representar 300–500 kcal extra/día sin fatiga.</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+</div><!-- /container -->
+
+<!-- ====== FOOTER ====== -->
+<footer>
+  <div class="footer-warn">⚠️ Consulta a tu médico antes de iniciar cualquier programa de entrenamiento o suplementación</div>
+  <p>Rutina diseñada para personas con experiencia básica en el gimnasio · Ajusta las cargas a tu nivel · Descansa si sientes dolor</p>
+</footer>
+
+</body>
+</html>
